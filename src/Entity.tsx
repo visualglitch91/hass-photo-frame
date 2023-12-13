@@ -4,8 +4,6 @@ import updater from "./updater";
 
 const baseStyle = {
   display: "inline-block",
-  width: 140,
-  height: 80,
   border: "none",
   background: "rgba(0,0,0,0.7)",
   color: "white",
@@ -14,7 +12,6 @@ const baseStyle = {
   fontSize: 14,
   padding: 12,
   cursor: "pointer",
-  margin: 8,
   float: "left",
 };
 
@@ -24,13 +21,19 @@ const onStyle = {
 };
 
 export default function Entity({
+  width,
+  height,
   label,
   entityId,
   on: externalOn,
+  onToggle,
 }: {
+  width: number;
+  height: number;
   label: string;
   entityId: string;
   on: boolean;
+  onToggle?: () => void;
 }) {
   const [internalOn, setInternalOn] = useState<boolean | null>(null);
   const on = internalOn === null ? externalOn : internalOn;
@@ -49,7 +52,10 @@ export default function Entity({
 
     hass("post", `services/homeassistant/turn_${on ? "off" : "on"}`, {
       entity_id: entityId,
-    }).then(() => setTimeout(() => updater.update(), 300));
+    }).then(() => {
+      onToggle?.();
+      setTimeout(() => updater.update(), 300);
+    });
   };
 
   useEffect(() => {
@@ -61,7 +67,10 @@ export default function Entity({
   }, []);
 
   return (
-    <button style={{ ...baseStyle, ...(on ? onStyle : {}) }} onClick={toggle}>
+    <button
+      style={{ ...baseStyle, ...(on ? onStyle : {}), width, height }}
+      onClick={toggle}
+    >
       {label}
     </button>
   );

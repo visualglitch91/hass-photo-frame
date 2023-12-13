@@ -5,4 +5,4 @@ deploy.sh
 node_modules
 src/version.json
 *.log
-src/config.json
+config.json

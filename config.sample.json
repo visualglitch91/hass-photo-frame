@@ -1,0 +1,25 @@
+{
+  "port": 7428,
+  "photos": {
+    "interval": 600000,
+    "fade": 1600,
+    "imageDir": "/home/pi/Pictures"
+  },
+  "homeAssistant": {
+    "server": "http://hass:8123",
+    "token": "HASS_LONG_TERM_TOKEN",
+    "columnCount": 6,
+    "cellWidth": 140,
+    "cellHeight": 80,
+    "cellGap": 16,
+    "rooms": [
+      {
+        "label": "Bedroom",
+        "entities": [
+          { "entityId": "light.bedroom_light", "label": "Bedroom Light" },
+          { "entityId": "switch.bedroom_fan", "label": "Bedroom Fan" }
+        ]
+      }
+    ]
+  }
+}

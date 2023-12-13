@@ -1,52 +1,64 @@
 import { useEffect, useState } from "preact/hooks";
 import request, { shuffle } from "./utils";
 import ImageCover from "./ImageCover";
-import { photos } from "./config.json";
+import config from "../config.json";
 
-function getUrl(fileName: string) {
-  return `/files/${fileName}`;
-}
+const defaultState = {
+  current: "",
+  next: "",
+  opacity: 0,
+};
 
 export default function ImageSlider({ onClick }: { onClick: () => void }) {
-  const [images, setImages] = useState<string[]>();
-  const [{ current, next, opacity }, setState] = useState({
-    current: 0,
-    next: 1,
-    opacity: 0,
-  });
+  const [{ current, next, opacity }, setState] = useState(defaultState);
 
   useEffect(() => {
-    let a: number;
-    let i: number;
+    let animationInterval: number;
+    let imageInterval: number;
+    let currentIndex = 0;
+    let nextIndex = 1;
+    let images: null | string[] = null;
 
-    (async () => {
-      const { files } = await request<{ files: string[] }>("/files");
+    const setup = async () => {
+      window.clearTimeout(animationInterval);
+      window.clearInterval(imageInterval);
 
-      const images = shuffle(files);
+      const urls = await request<{ urls: string[] }>("/photos").then((res) => {
+        return shuffle(res.urls);
+      });
 
-      setImages(images);
+      if (images === null) {
+        setState({
+          current: urls[0],
+          next: urls[1],
+          opacity: 0,
+        });
+      }
 
-      i = window.setInterval(() => {
+      images = urls;
+
+      imageInterval = window.setInterval(() => {
         const start = Date.now();
 
         const animate = () => {
           const timestamp = Date.now();
           const progress = timestamp - start;
 
-          if (progress < photos.fade) {
-            const opacity = progress / photos.fade;
+          if (progress < config.photos.fade) {
+            const opacity = progress / config.photos.fade;
             setState((state) => ({ ...state, opacity }));
-            a = window.setTimeout(animate, 60);
+            animationInterval = window.setTimeout(animate, 60);
           } else {
-            setState((state) => ({
-              ...state,
-              current: state.next,
-            }));
+            currentIndex = nextIndex;
 
-            a = window.setTimeout(() => {
+            setState((state) => ({ ...state, current: state.next }));
+
+            animationInterval = window.setTimeout(() => {
+              nextIndex = (currentIndex + 1) % images!.length;
+
               setState((state) => ({
                 ...state,
-                next: (state.current + 1) % images.length,
+                next: images![nextIndex],
                 opacity: 0,
               }));
             }, 10);
@@ -54,27 +66,38 @@ export default function ImageSlider({ onClick }: { onClick: () => void }) {
         };
 
         animate();
-      }, photos.interval);
-    })();
+      }, config.photos.interval);
+    };
+
+    const setupInterval = window.setInterval(setup, 60 * 60_000);
+    setup();
 
     return () => {
-      window.clearTimeout(a);
-      window.clearInterval(i);
+      window.clearTimeout(animationInterval);
+      window.clearInterval(imageInterval);
+      window.clearInterval(setupInterval);
     };
   }, []);
 
-  if (!images) {
+  if (!current) {
     return null;
   }
 
   return (
-    <div className="image-slider" onClick={onClick}>
+    <div
+      className="image-slider"
+      style={{
+        width: window.innerWidth,
+        height: window.innerHeight,
+      }}
+      onClick={onClick}
+    >
       <div className="image-slide">
-        <ImageCover src={getUrl(images[current])} style={{ zIndex: 1 }} />
+        <ImageCover src={current} style={{ zIndex: 1 }} />
       </div>
       <div className="image-slide">
         <ImageCover
-          src={getUrl(images[next])}
+          src={next}
           style={{ opacity: Math.max(opacity, 0).toFixed(3), zIndex: 2 }}
         />
       </div>

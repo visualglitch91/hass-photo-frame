@@ -1,4 +1,4 @@
-import { homeAssistant } from "./config.json";
+import { homeAssistant } from "../config.json";
 
 const { token, server } = homeAssistant;
 
