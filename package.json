@@ -2,7 +2,7 @@
   "scripts": {
     "prerun": "rm -rf .parcel-cache dist && echo \"\\\"$(date +%s)\\\"\" > src/version.json",
     "start": "node server.mjs",
-    "build": "yarn lint && yarn prerun && parcel build src/index.html",
+    "build": "yarn lint && yarn prerun && rm -rf dist && parcel build src/index.html",
     "lint": "eslint --ext .tsx,.ts,.jsx,.js ./src && tsc --project ./tsconfig.json --noEmit"
   },
   "browserslist": "iOS 5",
