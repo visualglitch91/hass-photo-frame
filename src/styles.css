@@ -54,3 +54,12 @@ body {
   margin-bottom: 24px;
   text-align: center;
 }
+
+.night-time-overlay {
+  z-index: 3;
+  opacity: 0.9;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+}

@@ -2,6 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import request, { shuffle } from "./utils";
 import ImageCover from "./ImageCover";
 import config from "../config.json";
+import NightTimeOverlay from "./NightTimeOverlay";
 
 const defaultState = {
   current: "",
@@ -101,6 +102,7 @@ export default function ImageSlider({ onClick }: { onClick: () => void }) {
           style={{ opacity: Math.max(opacity, 0).toFixed(3), zIndex: 2 }}
         />
       </div>
+      <NightTimeOverlay />
     </div>
   );
 }
